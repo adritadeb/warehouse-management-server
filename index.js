@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const port = process.env.PORT || 5000;
 
@@ -17,12 +17,34 @@ async function run() {
     await client.connect();
     const booksCollection = client.db('booksStocker').collection('books');
 
-    app.get('/books', async (req, res) => {
-        const query = {};
-        const cursor = booksCollection.find(query);
-        const books = await cursor.toArray();
-        res.send(books);
-    })
+    try {
+        //Books API
+        app.get('/books', async (req, res) => {
+            const query = {};
+            const cursor = booksCollection.find(query);
+            const books = await cursor.toArray();
+            res.send(books);
+        });
+
+        app.get('/inventory/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const book = await booksCollection.findOne(query);
+            res.send(book);
+        });
+
+        //Delete
+        app.delete('/inventory/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await booksCollection.deleteOne(query);
+            res.send(result);
+        });
+
+    }
+    finally {
+
+    }
 };
 run().catch(console.dir);
 
