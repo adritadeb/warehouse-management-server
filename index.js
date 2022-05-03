@@ -33,6 +33,13 @@ async function run() {
             res.send(book);
         });
 
+        //Post
+        app.post('/books', async (req, res) => {
+            const newBook = req.body;
+            const result = await booksCollection.insertOne(newBook);
+            res.send(result);
+        });
+
         //Delete
         app.delete('/inventory/:id', async (req, res) => {
             const id = req.params.id;
