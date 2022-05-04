@@ -33,6 +33,21 @@ async function run() {
             res.send(book);
         });
 
+        //Put
+        app.put('/inventory/:id', async (req, res) => {
+            const id = req.params.id;
+            const book = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const updatedQuantity = {
+                $set: {
+                    quantity: book.quantity
+                }
+            };
+            const result = await booksCollection.updateOne(filter, updatedQuantity, options);
+            res.send(result);
+        });
+
         //Post
         app.post('/books', async (req, res) => {
             const newBook = req.body;
