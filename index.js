@@ -7,9 +7,11 @@ const port = process.env.PORT || 5000;
 
 const app = express();
 
+//Middleware
 app.use(cors());
 app.use(express.json());
 
+//Verify JWT
 function verifyJWT(req, res, next) {
     const authHeader = req.headers?.authorization;
     if (!authHeader) {
@@ -33,6 +35,7 @@ async function run() {
     const booksCollection = client.db('booksStocker').collection('books');
 
     try {
+        //Auth
         app.post('/login', async (req, res) => {
             const user = req.body;
             const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
@@ -78,16 +81,15 @@ async function run() {
             res.send(result);
         });
 
-        app.get('/myItems', verifyJWT, async (req, res) => {
-            const decodedEmail = req.decoded?.email;
+        //MyItems page data
+        app.get('/myItems', async (req, res) => {
             const email = req.query.email;
-            if (email === decodedEmail) {
-                const query = { email: email };
-                const cursor = booksCollection.find(query);
-                const books = await cursor.toArray();
-                res.send(books);
-            };
-        });
+            const query = { email: email };
+            console.log(query);
+            const cursor = booksCollection.find(query);
+            const addedBooks = await cursor.toArray();
+            res.send(addedBooks);
+        })
 
         //Delete
         app.delete('/inventory/:id', async (req, res) => {
