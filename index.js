@@ -82,13 +82,18 @@ async function run() {
         });
 
         //MyItems page data
-        app.get('/myItems', async (req, res) => {
+        app.get('/myItems', verifyJWT, async (req, res) => {
+            const decodedEmail = req.decoded.email;
             const email = req.query.email;
-            const query = { email: email };
-            console.log(query);
-            const cursor = booksCollection.find(query);
-            const addedBooks = await cursor.toArray();
-            res.send(addedBooks);
+            if (email === decodedEmail) {
+                const query = { email: email };
+                const cursor = booksCollection.find(query);
+                const addedBooks = await cursor.toArray();
+                res.send(addedBooks);
+            }
+            else {
+                res.status(403).send({ message: 'Foridden access' })
+            }
         })
 
         //Delete
